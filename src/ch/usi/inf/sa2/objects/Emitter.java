@@ -21,9 +21,9 @@ public class Emitter extends SceneItem{
     
     private RandomValue azimuth =  new RandomValue(0,360);
     
-    private RandomValue mass = new RandomValue(20, 25);
+    private RandomValue mass = new RandomValue(20000, 50000);
     
-    private RandomValue size = new RandomValue(10, 15);
+    private RandomValue size = new RandomValue(10, 35);
     
     private RandomValue lifespan = new RandomValue(0, 10);
     
@@ -178,14 +178,32 @@ public class Emitter extends SceneItem{
     
     public Particle generateParticle() {
         Particle res = new Particle(this.getX(), this.getY()-5);
-        res.setSize(mass.getRandomValue()/2);
+        res.setSize(size.getRandomValue());
         res.setMass(mass.getRandomValue());
         res.setLifespan(lifespan.getRandomValue());
         double part_v = v.getRandomValue();
         double part_azimuth = azimuth.getRandomValue();
         res.getV().setX(part_v * Math.cos(Math.PI * part_azimuth / 180 ));
         res.getV().setY(part_v * Math.sin(Math.PI * part_azimuth / 180 ));
-        res.setColor(Color.BLUE);
+        //res.setColor(Color.BLUE);
+        if(res.getSize()<15 && res.getSize()>14){
+        res.setColor(new Color(173, 173, 173));
+        }
+        if(res.getSize()<14 && res.getSize()>13){
+        res.setColor(new Color(186, 186, 186));
+        }
+        if(res.getSize()<13 && res.getSize()>12){
+        res.setColor(new Color(199, 199, 199));
+        }
+        if(res.getSize()<12 && res.getSize()>11){
+        res.setColor(new Color(212, 212, 212));
+        }
+        if(res.getSize()<11 && res.getSize()>10){
+        res.setColor(new Color(224, 224, 224));
+        }
+        if(res.getSize()<10){
+        res.setColor(new Color(237, 237, 237));
+        }
         return res;
     } 
     

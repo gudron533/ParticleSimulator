@@ -8,6 +8,7 @@ import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,8 @@ public class Scene {
     private Rectangle.Double bounds = new Rectangle.Double(0, 0, 0, 0);
     
     private double t = 0.0;
+    
+    private AffineTransform transform = new AffineTransform();
     
     public void addItem(SceneItem item) {
         synchronized(items) {
@@ -81,6 +84,10 @@ public class Scene {
         
         return result;
     }
+    
+    public AffineTransform getTransform() {
+    return transform;
+  }
     
     /**
      *

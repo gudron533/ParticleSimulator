@@ -158,26 +158,24 @@ public class Particle extends SceneItem{
         //Rectangle2D rect = new Rectangle2D.Double(getX(), getY(), getSize(), getSize()/4);
         Ellipse2D el = new Ellipse2D.Double(getX(), getY(), getSize(), getSize());
         //LoadImageParticle li = new LoadImageParticle();
-        g.setPaint(getColor());
-        if(size<0.3){
-        g.setPaint(new Color(0, 0, 51));
-        }
-        if(size<0.25){
+        g.setColor(Color.CYAN);
+        
+        if(size<15 && size>14){
         g.setPaint(new Color(173, 173, 173));
         }
-        if(size<0.2){
+        if(size<14 && size>13){
         g.setPaint(new Color(186, 186, 186));
         }
-        if(size<0.15){
+        if(size<13 && size>12){
         g.setPaint(new Color(199, 199, 199));
         }
-        if(size<0.1){
+        if(size<12 && size>11){
         g.setPaint(new Color(212, 212, 212));
         }
-        if(size<0.06){
+        if(size<11 && size>10){
         g.setPaint(new Color(224, 224, 224));
         }
-        if(size<0.03){
+        if(size<10){
         g.setPaint(new Color(237, 237, 237));
         }
         

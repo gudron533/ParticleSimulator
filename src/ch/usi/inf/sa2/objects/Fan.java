@@ -60,15 +60,16 @@ public class Fan extends SceneItem implements ForceSource{
         
         double distance = this.getPoint().distance(p.getPoint());
         Vector2D vector = new Vector2D(p.getPoint(), this.getPoint());
-        double G = Scene.G;
-        if(p.getPoint().getY() <= this.getPoint().getY()+0.01 && p.getPoint().getX() >= this.getPoint().getX() - 0.5 && p.getPoint().getX() <= this.getPoint().getX() + 0.5){
+        if(p.getPoint().getY() <= this.getPoint().getY()+1 && p.getPoint().getX() >= this.getPoint().getX() - 20 && p.getPoint().getX() <= this.getPoint().getX() + 20){
         double forceFan = power;
-        double force = ((G - forceFan) * p.getMass());// - forceFan*p.getMass());
-        double force2 = Scene.G * power * p.getMass()/distance/distance;
+        double force1 = ((Scene.G + forceFan) * p.getMass()/distance);// - forceFan*p.getMass());
+        double force = Scene.G;
+        //System.out.println("bl");
+        double force2 = Scene.G - power * p.getMass()/distance/distance;
         double distsq = Math.sqrt(distance);
 
-        vector.setX(vector.getX() / distsq * force);
-        vector.setY(vector.getY() / distsq * force);
+        vector.setX(vector.getX() / distsq * force2);
+        vector.setY(vector.getY() / distsq * force2);
         return vector;}
         else {
             double force = Scene.G * power * p.getMass()/distance/distance;

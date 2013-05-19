@@ -15,6 +15,8 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,8 @@ import javax.swing.Timer;
 public class App extends javax.swing.JFrame {
 
     int screenShotCounter = 0;
-    double sliderVal = 0.006;
+    double sliderTimeVal = 0.006;
+    double sliderSpeedVal=100;
     double windowX;
     double windowY;
     /**
@@ -47,10 +50,10 @@ public class App extends javax.swing.JFrame {
         em.setMaxAzimuth(350);
         em.setMinLifespan(10);
         em.setMaxLifespan(100);
-        em.setMinV(50.01);
-        em.setMaxV(150.01);
-        em.setMinSize(20);
-        em.setMaxSize(20);
+        em.setMinV(getSliderSpeedVal()/1.5);
+        em.setMaxV(getSliderSpeedVal()*1.5);
+        em.setMinSize(10);
+        em.setMaxSize(15);
         viewport1.scene.addItem(em);
 //        Fan fan = new Fan(4.5, 8);
 //        fan.setMass(265);
@@ -87,6 +90,9 @@ public class App extends javax.swing.JFrame {
         
     }
 
+    public double getSliderSpeedVal() {
+        return sliderSpeedVal;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -110,6 +116,9 @@ public class App extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jSlider2 = new javax.swing.JSlider();
+        jTextField2 = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -133,6 +142,16 @@ public class App extends javax.swing.JFrame {
         setPreferredSize(new java.awt.Dimension(1324, 900));
 
         viewport1.setBackground(new java.awt.Color(0, 0, 0));
+        viewport1.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                viewport1MouseWheelMoved(evt);
+            }
+        });
+        viewport1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                viewport1MouseReleased(evt);
+            }
+        });
 
         jToolBar1.setRollover(true);
         viewport1.add(jToolBar1);
@@ -142,11 +161,6 @@ public class App extends javax.swing.JFrame {
         jLabel2.setMaximumSize(new java.awt.Dimension(2920, 1936));
         jLabel2.setMinimumSize(new java.awt.Dimension(1, 1));
         jLabel2.setPreferredSize(new java.awt.Dimension(1324, 993));
-        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel2MouseReleased(evt);
-            }
-        });
 
         jButton1.setText("jButton1");
 
@@ -180,7 +194,7 @@ public class App extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setLabelFor(jTextField1);
-        jLabel1.setText("Speed");
+        jLabel1.setText("Time");
 
         jButton2.setBackground(new java.awt.Color(255, 255, 255));
         jButton2.setMnemonic('p');
@@ -244,6 +258,24 @@ public class App extends javax.swing.JFrame {
             }
         });
 
+        jSlider2.setMaximum(10000);
+        jSlider2.setMinimum(500);
+        jSlider2.setValue(5000);
+        jSlider2.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider2StateChanged(evt);
+            }
+        });
+
+        jTextField2.setEditable(false);
+        jTextField2.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jTextField2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextField2.setText("X 1");
+
+        jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("Velocity");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -253,21 +285,23 @@ public class App extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton3)
                     .addComponent(jButton2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(34, 34, 34)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jTextField2)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(160, 160, 160)
                 .addComponent(jButton4))
         );
         jPanel1Layout.setVerticalGroup(
@@ -276,11 +310,17 @@ public class App extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -293,7 +333,7 @@ public class App extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel4)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jLabel5)))
                 .addContainerGap())
         );
 
@@ -442,7 +482,7 @@ public class App extends javax.swing.JFrame {
             viewport1.dt = 0;
         } else {
             jButton2.setBackground(Color.WHITE);
-            viewport1.dt = sliderVal;
+            viewport1.dt = sliderTimeVal;
         }
     }
     
@@ -458,32 +498,32 @@ public class App extends javax.swing.JFrame {
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         
-        double jSliderVal = (double) jSlider1.getValue()/1000;
+        double jSliderVal = (double) jSlider1.getValue()/500;
         System.out.println(jSliderVal);
         viewport1.dt = jSliderVal;
         double val = jSliderVal;
-        sliderVal = val;
-        if(val == 0.006) {
+        sliderTimeVal = val;
+        if(val == 0.012) {
             jTextField1.setText("Real Time");
         } if(val == 0.000) {
             jTextField1.setText("Stop");
-        } if(val == 0.001) {
-            jTextField1.setText("/ 6");
         } if(val == 0.002) {
-            jTextField1.setText("/ 5");
-        }  if(val == 0.003) {
-            jTextField1.setText("/ 4");
+            jTextField1.setText("/ 6");
         } if(val == 0.004) {
-            jTextField1.setText("/ 3");
-        } if(val == 0.005) {
-            jTextField1.setText("/ 2");
-        } if(val == 0.007) {
-            jTextField1.setText("X 2");
+            jTextField1.setText("/ 5");
+        }  if(val == 0.006) {
+            jTextField1.setText("/ 4");
         } if(val == 0.008) {
-            jTextField1.setText("X 3");
-        } if(val == 0.009) {
-            jTextField1.setText("X 4");
+            jTextField1.setText("/ 3");
         } if(val == 0.01) {
+            jTextField1.setText("/ 2");
+        } if(val == 0.014) {
+            jTextField1.setText("X 2");
+        } if(val == 0.016) {
+            jTextField1.setText("X 3");
+        } if(val == 0.018) {
+            jTextField1.setText("X 4");
+        } if(val == 0.02) {
             jTextField1.setText("X 5");
         }
                 //zoom.setText(DF.format(viewport.getTransform().getScaleX()));
@@ -492,31 +532,28 @@ public class App extends javax.swing.JFrame {
     
     
     private void jLabel3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseReleased
-        BlackHole bh = new BlackHole(windowX,windowY);
-        bh.setMass(1e16);
-        System.out.println(windowX);
+        BlackHole bh = new BlackHole(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
+        bh.setMass(5e15);
         bh.setRadius(20);
         viewport1.scene.addItem(bh);
     }//GEN-LAST:event_jLabel3MouseReleased
 
     private void jLabel4MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseReleased
-        WhiteHole wh = new WhiteHole(evt.getXOnScreen(),evt.getYOnScreen());
-        wh.setMass(1e16);
-        System.out.println(evt.getXOnScreen());
+        WhiteHole wh = new WhiteHole(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
+        wh.setMass(5e15);
         wh.setRadius(20);
         viewport1.scene.addItem(wh);
     }//GEN-LAST:event_jLabel4MouseReleased
 
     private void jLabel5MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseReleased
-        Fan fan = new Fan(evt.getXOnScreen(),evt.getYOnScreen());
-        fan.setMass(1e12);
-        System.out.println(evt.getXOnScreen());
+        Fan fan = new Fan(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
+        fan.setMass(1e6);
         fan.setRadius(20);
         viewport1.scene.addItem(fan);
     }//GEN-LAST:event_jLabel5MouseReleased
 
-    private void jLabel2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseReleased
-        jLabel2.addMouseListener(new MouseAdapter(){
+    private void viewport1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseReleased
+        viewport1.addMouseListener(new MouseAdapter(){
         @Override
         public void mouseClicked(MouseEvent e){
             windowX = e.getX();
@@ -526,7 +563,28 @@ public class App extends javax.swing.JFrame {
             System.out.println("e.getX()");
         }
         });
-    }//GEN-LAST:event_jLabel2MouseReleased
+    }//GEN-LAST:event_viewport1MouseReleased
+
+    private void jSlider2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider2StateChanged
+        double jSliderVal = (double) jSlider2.getValue();
+        sliderSpeedVal = jSliderVal;
+        jTextField2.setText(sliderSpeedVal + "");    
+        System.out.println(sliderSpeedVal);
+    }//GEN-LAST:event_jSlider2StateChanged
+
+    private void viewport1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_viewport1MouseWheelMoved
+//        try {
+////      final double factor = Math.pow(2, -evt.getPreciseWheelRotation() / 10);
+////      final Point2D mouse = viewport1.getTransform().inverseTransform(evt.getPoint(), null);
+////      viewport1.getTransform().translate(mouse.getX(), mouse.getY());
+////      viewport1.getTransform().scale(factor, factor);
+////      viewport1.getTransform().translate(-mouse.getX(), -mouse.getY());
+////      viewport1.repaint();
+//      
+//    } catch (NoninvertibleTransformException ex) {
+//      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+    }//GEN-LAST:event_viewport1MouseWheelMoved
 
 //// TILL HERE
     
@@ -593,10 +651,13 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSlider jSlider1;
+    private javax.swing.JSlider jSlider2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;

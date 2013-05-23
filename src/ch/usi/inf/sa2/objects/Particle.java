@@ -21,6 +21,7 @@ public class Particle extends SceneItem{
     
     private Vector2D force = new Vector2D();
     
+    private double velocity;
     
     private double mass;
     
@@ -33,8 +34,9 @@ public class Particle extends SceneItem{
     private double t = 0.0d; //lifetime
     
     public boolean stop;
-    
 
+
+    
     public Particle(double x, double y) {
         super(x, y);
     }
@@ -142,11 +144,9 @@ public class Particle extends SceneItem{
         //check for a black hole
     }
 
-        
-    
-    
+
     public boolean checkForDestruction() {
-        return (t >= lifespan || getScene().blackHoleisNear(this));
+        return (t >= lifespan || getScene().blackHoleisNear(this));    
     }
     
     /**
@@ -158,13 +158,17 @@ public class Particle extends SceneItem{
         //Rectangle2D rect = new Rectangle2D.Double(getX(), getY(), getSize(), getSize()/4);
         Ellipse2D el = new Ellipse2D.Double(getX(), getY(), getSize(), getSize());
         //LoadImageParticle li = new LoadImageParticle();
+//        if (el.intersects(new Rectangle2D.Double(500, 600, 100, 50))) {
+//            System.out.println("yea");
+//        }
         g.setColor(Color.CYAN);
-        
-        if(size<15 && size>14){
-        g.setPaint(new Color(173, 173, 173));
+        if(v.getX()>100 || v.getY()>100 ){
+        //g.setPaint(new Color(173, 173, 173));
+        g.setColor(Color.CYAN);
         }
         if(size<14 && size>13){
-        g.setPaint(new Color(186, 186, 186));
+        //g.setPaint(new Color(186, 186, 186));
+        g.setColor(Color.BLUE);
         }
         if(size<13 && size>12){
         g.setPaint(new Color(199, 199, 199));
@@ -181,6 +185,14 @@ public class Particle extends SceneItem{
         
         
         g.fill(el);
+    }
+    
+    public void reflectfromTheWall(Wall w) {
+        // reflect from the wall
+        double vn = v.dot(w.getN());
+        v.setX(v.getX() - 2* vn * w.getN().getX());
+        v.setY(v.getY() - 2* vn * w.getN().getY());
+        
     }
     
 }

@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  *
@@ -19,9 +20,13 @@ public class BlackHole extends SceneItem implements ForceSource{
     
     private double radius;
     
+    private Color color = Color.BLACK;
+    
     
     public BlackHole(double x, double y) {
         super(x, y);
+        Rectangle2D.Double r = new Rectangle2D.Double(x-20, y-20,40,40);
+        this.setBounds(r);
     }
 
     /**
@@ -52,6 +57,7 @@ public class BlackHole extends SceneItem implements ForceSource{
         this.radius = radius;
     }
 
+
     @Override
     public Vector2D getForce(Particle p) {
         double distance = this.getPoint().distance(p.getPoint());
@@ -68,10 +74,14 @@ public class BlackHole extends SceneItem implements ForceSource{
         return (s < radius);
     }  
     
+    public void setColor(Color color) {
+        this.color = color;
+    } 
+    
     @Override
     public void paint(Graphics2D g ){
         Ellipse2D el = new Ellipse2D.Double(getX() - radius, getY() - radius, 2* radius, 2 * radius);
-        g.setPaint(new Color(0,0,0));
+        g.setColor(color);
         g.fill(el);
     }
     

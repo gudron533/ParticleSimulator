@@ -7,6 +7,7 @@ package ch.usi.inf.sa2.objects;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  *
@@ -115,6 +116,7 @@ public class SceneItem {
     public void paint(Graphics2D g) {
         
     }
+    
     
     
 }

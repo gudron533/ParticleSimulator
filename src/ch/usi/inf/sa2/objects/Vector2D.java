@@ -28,6 +28,10 @@ public class Vector2D {
         this.vector[1] = b.getY() - a.getY();
     }
     
+    public Vector2D(double x1, double y1, double x2, double y2) {
+        this.vector[0] = x2 - x1;
+        this.vector[1] = y2 - y1;
+    }
     
 
     /**
@@ -60,4 +64,11 @@ public class Vector2D {
         return vector[1];
     }
     
+    public static double dot(Vector2D x, Vector2D y) {
+        return x.vector[0] * y.vector[0] + x.vector[1] * y.vector[1];
+    }
+    
+    public double dot(Vector2D y) {
+        return dot(this, y);
+    }
 }

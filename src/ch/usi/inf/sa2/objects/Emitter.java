@@ -7,7 +7,9 @@ package ch.usi.inf.sa2.objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
+import sun.awt.RepaintArea;
 
 /**
  *
@@ -29,8 +31,13 @@ public class Emitter extends SceneItem{
     
     private double t = 0.0;
     
+    private Color color = Color.RED;
+    
+    Rectangle2D.Double re;
     public Emitter(double x, double y) {
         super(x,y);
+        re = new Rectangle2D.Double(x-10, y-10,20,20);
+        this.setBounds(re);
     }
     
     /**
@@ -70,6 +77,7 @@ public class Emitter extends SceneItem{
     public double getMinV() {
         return v.getMin();
     }
+    
 
     /**
      * @param minV the minV to set
@@ -185,27 +193,9 @@ public class Emitter extends SceneItem{
         double part_azimuth = azimuth.getRandomValue();
         res.getV().setX(part_v * Math.cos(Math.PI * part_azimuth / 180 ));
         res.getV().setY(part_v * Math.sin(Math.PI * part_azimuth / 180 ));
-        //res.setColor(Color.BLUE);
-        if(res.getSize()<15 && res.getSize()>14){
-        res.setColor(new Color(173, 173, 173));
-        }
-        if(res.getSize()<14 && res.getSize()>13){
-        res.setColor(new Color(186, 186, 186));
-        }
-        if(res.getSize()<13 && res.getSize()>12){
-        res.setColor(new Color(199, 199, 199));
-        }
-        if(res.getSize()<12 && res.getSize()>11){
-        res.setColor(new Color(212, 212, 212));
-        }
-        if(res.getSize()<11 && res.getSize()>10){
-        res.setColor(new Color(224, 224, 224));
-        }
-        if(res.getSize()<10){
-        res.setColor(new Color(237, 237, 237));
-        }
         return res;
     } 
+    
     
     @Override
     public void makeStep(double dt) {
@@ -222,16 +212,25 @@ public class Emitter extends SceneItem{
         
     }
     
+    public void emitterBoundUpdatePosition(double x, double y) {
+        re.setRect(x-10, y-10, 20, 20);
+    }
+    
+    public void setColor(Color color) {
+        this.color = color;
+    }
+    
     @Override
     public void paint(Graphics2D g) {
-        double r = (getMinSize() + getMaxSize()) / 3;
-        Ellipse2D el = new Ellipse2D.Double(getX() - r, getY() - r, 2 * r, 2 * r);
+        double r = (getMinSize() + getMaxSize())*3;
+        Ellipse2D el = new Ellipse2D.Double(getX() - r/2, getY() - r/2, r, r);
         
-        g.setColor(Color.red);
+        g.setColor(color);
         g.fill(el);
-        Ellipse2D elInner = new Ellipse2D.Double(getX()- r/2, getY()-r/2, r, r);
+
         g.setColor(Color.BLACK);
-        g.fill(elInner);
+
+        g.draw(re);
         
     }
     

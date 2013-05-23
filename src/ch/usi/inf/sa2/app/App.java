@@ -4,25 +4,41 @@
  */
 package ch.usi.inf.sa2.app;
 
+import ch.usi.inf.sa2.components.Viewport;
 import ch.usi.inf.sa2.objects.BlackHole;
 import ch.usi.inf.sa2.objects.Emitter;
 import ch.usi.inf.sa2.objects.Fan;
+import ch.usi.inf.sa2.objects.RandomValue;
+import ch.usi.inf.sa2.objects.SETEmitterInfo;
+import ch.usi.inf.sa2.objects.SETFanInfo;
+import ch.usi.inf.sa2.objects.TargetHole;
+import ch.usi.inf.sa2.objects.Wall;
 import ch.usi.inf.sa2.objects.WhiteHole;
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import static java.awt.image.ImageObserver.WIDTH;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 /**
@@ -31,68 +47,40 @@ import javax.swing.Timer;
  */
 public class App extends javax.swing.JFrame {
 
-    int screenShotCounter = 0;
-    double sliderTimeVal = 0.006;
-    double sliderSpeedVal=100;
-    double windowX;
-    double windowY;
+    private int screenShotCounter = 0;
+    private double sliderTimeVal = 0.006;
+    private double sliderSpeedVal=100;
+    private Wall selectedWall;
+    private BlackHole selectedBH;
+    private WhiteHole selectedWH;
+    private Emitter selectedEmitter;
+    private Fan selectedFan;
+    private Point2D mouseOrigin;
+    
+    
+    
     /**
      * Creates new form App
      */
+    
+
     public App() {
        
         
         initComponents();
-        viewport1.scene.getBounds().setRect(0, 0, this.getWidth(), this.getHeight());
-        Emitter em = new Emitter(300,250);
-        em.setCreationRate(40);
-        em.setMinAzimuth(345);
-        em.setMaxAzimuth(350);
-        em.setMinLifespan(10);
-        em.setMaxLifespan(100);
-        em.setMinV(getSliderSpeedVal()/1.5);
-        em.setMaxV(getSliderSpeedVal()*1.5);
-        em.setMinSize(10);
-        em.setMaxSize(15);
-        viewport1.scene.addItem(em);
-//        Fan fan = new Fan(4.5, 8);
-//        fan.setMass(265);
-//        fan.setRadius(0.5);
-//        viewport1.scene.addItem(fan);
-//        Fan fan2 = new Fan(10.5, 5);
-//        fan2.setMass(860);
-//        fan2.setRadius(0.5);
-//        viewport1.scene.addItem(fan2);
-//        BlackHole bhl = new BlackHole(4, 4);
-//        bhl.setMass(0.3e12);
-//        bhl.setRadius(0.1);
-//        viewport1.scene.addItem(bhl);
-//        BlackHole bht = new BlackHole(8, 5);
-//        bht.setMass(9.8e12);
-//        bht.setRadius(0.2);
-//        viewport1.scene.addItem(bht);
-//        BlackHole bhr = new BlackHole(16, 7);
-//        bhr.setMass(6.8e12);
-//        bhr.setRadius(0.53);
-//        viewport1.scene.addItem(bhr);
-//        BlackHole bhd = new BlackHole(10, 8);
-//        bhd.setMass(5.97e12);
-//        bhd.setRadius(0.2);
-//        viewport1.scene.addItem(bhd);
-//        WhiteHole wh = new WhiteHole(9.5, 8);
-//        wh.setMass(2.69e12);
-//        wh.setRadius(0.4);
-//        viewport1.scene.addItem(wh);
-//        
-
-        //CCWall wall = new CCWall(, 4, 6, 4);
-        //viewport1.scene.addItem(wall);
-        
+        /// SETTING SIMULATION MENU PANEL
+        ButtonGroup simulationGroup = new ButtonGroup();
+        simulationGroup.add(jRadioButtonMenuItem1);
+        simulationGroup.add(jRadioButtonMenuItem2);
+        simulationGroup.add(jRadioButtonMenuItem3);
+        simulationGroup.add(jRadioButtonMenuItem4);
+        viewport1.scene.getBounds().setRect(0, 0, viewport1.getWidth(), viewport1.getHeight());
     }
-
+    
     public double getSliderSpeedVal() {
         return sliderSpeedVal;
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -104,21 +92,14 @@ public class App extends javax.swing.JFrame {
 
         viewport1 = new ch.usi.inf.sa2.components.Viewport();
         jToolBar1 = new javax.swing.JToolBar();
-        jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
-        jSlider1 = new javax.swing.JSlider();
-        jLabel1 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jBackgroundPanel1 = new ch.usi.inf.sa2.components.jBackgroundPanel();
         jLabel5 = new javax.swing.JLabel();
-        jSlider2 = new javax.swing.JSlider();
-        jTextField2 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -131,15 +112,19 @@ public class App extends javax.swing.JFrame {
         copyMenuItem = new javax.swing.JMenuItem();
         pasteMenuItem = new javax.swing.JMenuItem();
         deleteMenuItem = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentsMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
+        jRadioButtonMenuItem2 = new javax.swing.JRadioButtonMenuItem();
+        jRadioButtonMenuItem3 = new javax.swing.JRadioButtonMenuItem();
+        jRadioButtonMenuItem4 = new javax.swing.JRadioButtonMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImages(null);
-        setLocation(new java.awt.Point(300, 150));
         setMaximumSize(new java.awt.Dimension(3324, 2968));
-        setPreferredSize(new java.awt.Dimension(1324, 900));
 
         viewport1.setBackground(new java.awt.Color(0, 0, 0));
         viewport1.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
@@ -148,8 +133,27 @@ public class App extends javax.swing.JFrame {
             }
         });
         viewport1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                viewport1MousePressed(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 viewport1MouseReleased(evt);
+            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                viewport1MouseClicked(evt);
+            }
+        });
+        viewport1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                viewport1MouseMoved(evt);
+            }
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                viewport1MouseDragged(evt);
+            }
+        });
+        viewport1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                viewport1KeyPressed(evt);
             }
         });
 
@@ -157,186 +161,96 @@ public class App extends javax.swing.JFrame {
         viewport1.add(jToolBar1);
         jToolBar1.setBounds(1870, 1510, 180, 30);
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ch/usi/inf/sa2/app/images/MetalBackgroundL.jpg"))); // NOI18N
-        jLabel2.setMaximumSize(new java.awt.Dimension(2920, 1936));
-        jLabel2.setMinimumSize(new java.awt.Dimension(1, 1));
-        jLabel2.setPreferredSize(new java.awt.Dimension(1324, 993));
-
         jButton1.setText("jButton1");
 
-        jPanel1.setBackground(new java.awt.Color(91, 91, 91));
-        jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
-        jPanel1.setMinimumSize(new java.awt.Dimension(1, 1));
-        jPanel1.setPreferredSize(new java.awt.Dimension(1324, 60));
-
-        jTextField1.setEditable(false);
-        jTextField1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField1.setText("Real Time");
-        jTextField1.setMaximumSize(new java.awt.Dimension(50, 30));
-
-        jSlider1.setMajorTickSpacing(20);
-        jSlider1.setMaximum(10);
-        jSlider1.setMinorTickSpacing(1);
-        jSlider1.setSnapToTicks(true);
-        jSlider1.setValue(6);
-        jSlider1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jSlider1.setMaximumSize(new java.awt.Dimension(200, 15));
-        jSlider1.setMinimumSize(new java.awt.Dimension(36, 15));
-        jSlider1.setName(""); // NOI18N
-        jSlider1.setPreferredSize(new java.awt.Dimension(190, 15));
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider1StateChanged(evt);
-            }
-        });
-
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setLabelFor(jTextField1);
-        jLabel1.setText("Time");
-
-        jButton2.setBackground(new java.awt.Color(255, 255, 255));
-        jButton2.setMnemonic('p');
-        jButton2.setText("Pause");
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pause(evt);
-            }
-        });
-
-        jButton4.setBackground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Exit");
-        jButton4.setFocusable(false);
-        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exit(evt);
-            }
-        });
-
-        jButton3.setBackground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Screenshot");
-        jButton3.setFocusable(false);
-        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                screenshot(evt);
-            }
-        });
-
-        jLabel3.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ch/usi/inf/sa2/app/images/Black-hole copy.png"))); // NOI18N
-        jLabel3.setText("Black Hole");
-        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel3MouseReleased(evt);
-            }
-        });
-
-        jLabel4.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ch/usi/inf/sa2/app/images/White-hole SMALL.png"))); // NOI18N
-        jLabel4.setText("White Hole");
-        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel4MouseReleased(evt);
-            }
-        });
-
         jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ch/usi/inf/sa2/app/images/FANSmall.png"))); // NOI18N
-        jLabel5.setText("Fan");
+        jLabel5.setText("FAN");
         jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jLabel5MouseReleased(evt);
             }
         });
 
-        jSlider2.setMaximum(10000);
-        jSlider2.setMinimum(500);
-        jSlider2.setValue(5000);
-        jSlider2.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider2StateChanged(evt);
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel7.setText("WALL");
+        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLabel7MouseReleased(evt);
+            }
+        });
+        jLabel7.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jLabel7MouseDragged(evt);
             }
         });
 
-        jTextField2.setEditable(false);
-        jTextField2.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jTextField2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField2.setText("X 1");
+        jLabel4.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel4.setText("WH");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLabel4MouseReleased(evt);
+            }
+        });
 
-        jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
-        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel6.setText("Velocity");
+        jLabel3.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel3.setText("BH");
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLabel3MouseReleased(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3)
-                    .addComponent(jButton2))
-                .addGap(34, 34, 34)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jTextField2)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(160, 160, 160)
-                .addComponent(jButton4))
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setText("EMIT");
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLabel8MouseReleased(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(204, 0, 51));
+        jLabel1.setText("WORK IN PROGRESS");
+
+        javax.swing.GroupLayout jBackgroundPanel1Layout = new javax.swing.GroupLayout(jBackgroundPanel1);
+        jBackgroundPanel1.setLayout(jBackgroundPanel1Layout);
+        jBackgroundPanel1Layout.setHorizontalGroup(
+            jBackgroundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jBackgroundPanel1Layout.createSequentialGroup()
+                .addContainerGap(525, Short.MAX_VALUE)
+                .addGroup(jBackgroundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jBackgroundPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(508, 508, 508))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jBackgroundPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(20, 20, 20))))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton3)
-                                .addGap(4, 4, 4))
-                            .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel4)
-                        .addComponent(jLabel5)))
-                .addContainerGap())
+        jBackgroundPanel1Layout.setVerticalGroup(
+            jBackgroundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jBackgroundPanel1Layout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addGroup(jBackgroundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+                .addGap(30, 30, 30))
         );
 
+        menuBar.setBackground(new java.awt.Color(153, 153, 153));
         menuBar.setMaximumSize(new java.awt.Dimension(135, 22));
 
         fileMenu.setMnemonic('f');
@@ -393,6 +307,14 @@ public class App extends javax.swing.JFrame {
         deleteMenuItem.setText("Delete");
         editMenu.add(deleteMenuItem);
 
+        jMenuItem2.setText("Settings");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        editMenu.add(jMenuItem2);
+
         menuBar.add(editMenu);
 
         helpMenu.setMnemonic('h');
@@ -408,29 +330,58 @@ public class App extends javax.swing.JFrame {
 
         menuBar.add(helpMenu);
 
+        jMenu1.setText("Simulation");
+
+        jRadioButtonMenuItem1.setText("Pause");
+        jRadioButtonMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jRadioButtonMenuItem1);
+
+        jRadioButtonMenuItem2.setSelected(true);
+        jRadioButtonMenuItem2.setText("x1");
+        jRadioButtonMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jRadioButtonMenuItem2);
+
+        jRadioButtonMenuItem3.setText("x2");
+        jRadioButtonMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jRadioButtonMenuItem3);
+
+        jRadioButtonMenuItem4.setText("x3");
+        jRadioButtonMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jRadioButtonMenuItem4);
+
+        menuBar.add(jMenu1);
+
         setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(viewport1, javax.swing.GroupLayout.DEFAULT_SIZE, 1324, Short.MAX_VALUE)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jBackgroundPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(viewport1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(viewport1, javax.swing.GroupLayout.PREFERRED_SIZE, 753, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(viewport1, javax.swing.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 113, Short.MAX_VALUE)))
+                .addComponent(jBackgroundPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -458,135 +409,273 @@ public class App extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void screenshot(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_screenshot
-
-        Robot robot = null;
-
-        try {
-            robot = new Robot();
-        } catch (AWTException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-        try {
-            ImageIO.write(screenShot, "JPG", new File("screenShot"+screenShotCounter+".jpg"));
-            screenShotCounter ++;
-        } catch (IOException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_screenshot
-
-    private void stop() {
-        if(viewport1.dt != 0) {
-            jButton2.setBackground(new Color(92,133,255));
-            viewport1.dt = 0;
-        } else {
-            jButton2.setBackground(Color.WHITE);
-            viewport1.dt = sliderTimeVal;
-        }
-    }
     
-    private void pause(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pause
-        try {
-            this.stop();
-        } finally {}
-    }//GEN-LAST:event_pause
-    
-    private void exit(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exit
-        System.exit(0);
-    }//GEN-LAST:event_exit
-
-    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         
-        double jSliderVal = (double) jSlider1.getValue()/500;
-        System.out.println(jSliderVal);
-        viewport1.dt = jSliderVal;
-        double val = jSliderVal;
-        sliderTimeVal = val;
-        if(val == 0.012) {
-            jTextField1.setText("Real Time");
-        } if(val == 0.000) {
-            jTextField1.setText("Stop");
-        } if(val == 0.002) {
-            jTextField1.setText("/ 6");
-        } if(val == 0.004) {
-            jTextField1.setText("/ 5");
-        }  if(val == 0.006) {
-            jTextField1.setText("/ 4");
-        } if(val == 0.008) {
-            jTextField1.setText("/ 3");
-        } if(val == 0.01) {
-            jTextField1.setText("/ 2");
-        } if(val == 0.014) {
-            jTextField1.setText("X 2");
-        } if(val == 0.016) {
-            jTextField1.setText("X 3");
-        } if(val == 0.018) {
-            jTextField1.setText("X 4");
-        } if(val == 0.02) {
-            jTextField1.setText("X 5");
-        }
-                //zoom.setText(DF.format(viewport.getTransform().getScaleX()));
-    }//GEN-LAST:event_jSlider1StateChanged
+    
+    private void viewport1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseReleased
 
+    }//GEN-LAST:event_viewport1MouseReleased
+
+    private void viewport1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_viewport1MouseWheelMoved
+    try {
+        System.out.println("Heyya MOVED");
+      final double factor = Math.pow(2, -evt.getPreciseWheelRotation() / 10);
+      final Point2D mouse = viewport1.scene.getTransform().inverseTransform(evt.getPoint(), null);
+      viewport1.scene.getTransform().translate(mouse.getX(), mouse.getY());
+      viewport1.scene.getTransform().scale(factor, factor);
+      viewport1.scene.getTransform().translate(-mouse.getX(), -mouse.getY());
+      viewport1.repaint();
+    } catch (NoninvertibleTransformException ex) {
+        System.out.println("Nooo not moving");
+      Logger.getLogger(Viewport.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    }//GEN-LAST:event_viewport1MouseWheelMoved
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void viewport1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseDragged
+//        PointerInfo a = MouseInfo.getPointerInfo();
+//	Point point = new Point(a.getLocation());
+//	SwingUtilities.convertPointFromScreen(point, evt.getComponent());
+        
+        if (selectedEmitter != null){
+            Point Pos = viewport1.getMousePosition();
+            double xPos = Pos.x;
+            double yPos = Pos.y;
+            Point2D.Double newPos = new Point2D.Double(xPos, yPos);
+            selectedEmitter.setPoint(newPos);
+            selectedEmitter.emitterBoundUpdatePosition(xPos, yPos);
+            
+        }
+        
+        if (selectedFan != null){
+            double xPos = evt.getX();
+            double yPos = evt.getY();
+            Point2D.Double newPos = new Point2D.Double(xPos, yPos);
+            selectedFan.setPoint(newPos);
+        } else {
+            
+            ///////////  PROBLEM PART /////////////////////////////
+            
+            try {
+                //Point pt = viewport1.getMousePosition();
+                final Point2D current = viewport1.getTransform().inverseTransform(evt.getPoint(), null);
+                final double tx = current.getX() - mouseOrigin.getX();
+                final double ty = current.getY() - mouseOrigin.getY();
+//                final double tx = viewport1.getMousePosition().x;
+//                final double ty = viewport1.getMousePosition().y;
+                mouseOrigin = current;
+                viewport1.scene.getTransform().translate(tx, ty);
+                
+                //viewport1.getTransform().translate(tx, ty);
+                //viewport1.repaint();
+                //translation.setText(viewport1.getDF().format(viewport.getTransform().getTranslateX()) + ", " + DF.format(viewport.getTransform().getTranslateY()));
+            } catch (NoninvertibleTransformException ex) {
+                viewport1.getLog().log(Level.SEVERE, null, ex);
+    }
+        }
+        //////////// TILL HERE ////////////////////////////////
+    }//GEN-LAST:event_viewport1MouseDragged
+
+    private void viewport1MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseMoved
+
+    }//GEN-LAST:event_viewport1MouseMoved
+
+    private void viewport1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MousePressed
+
+        /// SELECTING ALL SORTA OBJS HERE. NEED TO DO ACTUAL HANDLING CODE FOR DND
+        selectedBH = null;
+            selectedWH = null; 
+            selectedEmitter= null;
+            selectedFan = null;
+            selectedWall = null;
+        if (viewport1.scene.checkForPointInWallList(evt.getPoint())) {
+            
+            selectedWall = viewport1.scene.getSelectedWall();
+            selectedBH = null;
+            selectedWH = null; 
+            selectedEmitter= null;
+            selectedFan = null;
+            System.out.println(selectedWall);
+            if (selectedWall instanceof Wall) {
+            }
+        }
+        
+        if (viewport1.scene.checkForBlackHole(evt.getPoint())){
+            selectedBH = viewport1.scene.getBH();
+            
+            //// NULLIFY THIS SHIT 
+            selectedWall = null;
+            selectedWH = null; 
+            selectedEmitter= null;
+            selectedFan = null;
+            System.out.println(selectedBH);
+            //// DO RELATED STUFF HERE
+        }
+        
+        if (viewport1.scene.checkForEmitter(evt.getPoint())){
+            selectedEmitter = null;
+            selectedEmitter = viewport1.scene.getEmitter();
+            
+            
+            //// NULLIFY 
+            selectedWall = null;
+            selectedWH = null; 
+            selectedFan = null;
+            selectedBH = null;
+            System.out.println(selectedEmitter);
+            //// DO RELATED STUFF HERE
+        }
+        
+        if (viewport1.scene.checkForWhiteHole(evt.getPoint())){
+            selectedWH = viewport1.scene.getWH();
+            selectedFan = null;
+            selectedBH = null;
+            selectedWall = null;
+            selectedEmitter= null;
+            System.out.println(selectedWH);
+            //// DO RELATED STUFF HERE
+        }
+        
+        if (viewport1.scene.checkForFan(evt.getPoint())){
+            selectedFan = viewport1.scene.getFan();
+            
+            /// NILIFY AGAIN 
+            selectedBH = null;
+            selectedWall = null;
+            selectedEmitter= null;
+            selectedWH = null;
+            
+            System.out.println(selectedFan);
+            //// DO RELATED STUFF HERE
+        }
+        
+        ////////////////// PROBLEM PART ////////////////////////////
+        
+        try {
+            System.out.println("Heyya");
+            mouseOrigin = viewport1.scene.getTransform().inverseTransform(evt.getPoint(), null);
+            viewport1.scene.setTransform((AffineTransform) viewport1.scene.getTransform().clone());
+            
+        } catch (NoninvertibleTransformException ex) {
+            System.out.println("Nooooo");
+            viewport1.getLog().log(Level.SEVERE, null, ex);
+            }
+        ///////////////// TILL HERE ///////////////////////////////
+    }//GEN-LAST:event_viewport1MousePressed
+
+    private void viewport1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseClicked
+        
+        
+        if (SwingUtilities.isRightMouseButton(evt)) {
+            int x = evt.getX();
+            int y = evt.getY();
+            System.out.println(x);
+            System.out.println(y);
+            
+            if (selectedEmitter != null){
+             SETEmitterInfo se = new SETEmitterInfo();   
+             se.setDefaultCloseOperation(se.DISPOSE_ON_CLOSE);
+             se.setVisible(true);
+            se.setLocation(x, y);
+            }
+            
+            if (selectedFan != null){
+                SETFanInfo fanProp = new SETFanInfo();
+                fanProp.setDefaultCloseOperation(fanProp.DISPOSE_ON_CLOSE);
+                fanProp.setVisible(true);
+                fanProp.setLocation(x, y);
+            }
+
+            else {
+                
+            }
+         
+           
+        }
+        
     
-    
-    private void jLabel3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseReleased
-        BlackHole bh = new BlackHole(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
-        bh.setMass(5e15);
-        bh.setRadius(20);
-        viewport1.scene.addItem(bh);
-    }//GEN-LAST:event_jLabel3MouseReleased
+        
+        
+    }//GEN-LAST:event_viewport1MouseClicked
+
+    private void jRadioButtonMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem4ActionPerformed
+        viewport1.dt = 0.018;
+    }//GEN-LAST:event_jRadioButtonMenuItem4ActionPerformed
+
+    private void jRadioButtonMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem1ActionPerformed
+        viewport1.dt = 0.0;
+    }//GEN-LAST:event_jRadioButtonMenuItem1ActionPerformed
+
+    private void jRadioButtonMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem2ActionPerformed
+        viewport1.dt = 0.006;
+    }//GEN-LAST:event_jRadioButtonMenuItem2ActionPerformed
+
+    private void jRadioButtonMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem3ActionPerformed
+        viewport1.dt = 0.010;
+    }//GEN-LAST:event_jRadioButtonMenuItem3ActionPerformed
+
+    private void jLabel8MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseReleased
+        Emitter em = new Emitter(viewport1.getMousePosition().getX(),viewport1.getMousePosition().getY());
+        em.setCreationRate(40);
+        em.setMinAzimuth(182);
+        em.setMaxAzimuth(185);
+        em.setMinLifespan(10);
+        em.setMaxLifespan(100);
+        em.setMinV(50);
+        em.setMaxV(60);
+        em.setMinSize(1);
+        em.setMaxSize(5);
+        viewport1.scene.addItem(em);
+    }//GEN-LAST:event_jLabel8MouseReleased
+
+    private void jLabel7MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseDragged
+
+    }//GEN-LAST:event_jLabel7MouseDragged
+
+    private void jLabel7MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseReleased
+        Point2D.Double xx = new Point2D.Double(viewport1.getMousePosition().getX(), viewport1.getMousePosition().getY());
+        Point2D.Double yy = new Point2D.Double(viewport1.getMousePosition().getX() + 100, viewport1.getMousePosition().getY() +100);
+
+        Wall w5 = new Wall(xx, yy);
+        viewport1.scene.addItem(w5);
+    }//GEN-LAST:event_jLabel7MouseReleased
+
+    private void jLabel5MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseReleased
+        Fan fan = new Fan(viewport1.getMousePosition().getX(),viewport1.getMousePosition().getY());
+        fan.setMass(700000);
+        fan.setRadius(50);
+        fan.setPolygonPoints((int)viewport1.getMousePosition().getX()-25, (int)viewport1.getMousePosition().getY(),
+            (int)viewport1.getMousePosition().getX()+25, (int)viewport1.getMousePosition().getY(),
+            (int)(viewport1.getMousePosition().getX()+fan.getMass()/10000), (int) (viewport1.getMousePosition().getY()-fan.getMass()/2000),
+            (int)(viewport1.getMousePosition().getX()-fan.getMass()/10000), (int)(viewport1.getMousePosition().getY()-fan.getMass()/2000));
+        viewport1.scene.addItem(fan);
+    }//GEN-LAST:event_jLabel5MouseReleased
 
     private void jLabel4MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseReleased
-        WhiteHole wh = new WhiteHole(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
+        WhiteHole wh = new WhiteHole(viewport1.getMousePosition().getX(),viewport1.getMousePosition().getY());
         wh.setMass(5e15);
         wh.setRadius(20);
         viewport1.scene.addItem(wh);
     }//GEN-LAST:event_jLabel4MouseReleased
 
-    private void jLabel5MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseReleased
-        Fan fan = new Fan(evt.getXOnScreen()-200,evt.getYOnScreen()-50);
-        fan.setMass(1e6);
-        fan.setRadius(20);
-        viewport1.scene.addItem(fan);
-    }//GEN-LAST:event_jLabel5MouseReleased
+    private void jLabel3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseReleased
+        BlackHole bh = new BlackHole(viewport1.getMousePosition().getX(),viewport1.getMousePosition().getY());
+        bh.setMass(1e15);
+        bh.setRadius(20);
+        viewport1.scene.addItem(bh);
+        
+    }//GEN-LAST:event_jLabel3MouseReleased
 
-    private void viewport1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewport1MouseReleased
-        viewport1.addMouseListener(new MouseAdapter(){
-        @Override
-        public void mouseClicked(MouseEvent e){
-            windowX = e.getX();
-            windowY = e.getY();
-            System.out.println(e.getY());
-            
-            System.out.println("e.getX()");
+    private void viewport1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_viewport1KeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_P) {
+            System.out.println("hhh");
         }
-        });
-    }//GEN-LAST:event_viewport1MouseReleased
+        
+    }//GEN-LAST:event_viewport1KeyPressed
 
-    private void jSlider2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider2StateChanged
-        double jSliderVal = (double) jSlider2.getValue();
-        sliderSpeedVal = jSliderVal;
-        jTextField2.setText(sliderSpeedVal + "");    
-        System.out.println(sliderSpeedVal);
-    }//GEN-LAST:event_jSlider2StateChanged
-
-    private void viewport1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_viewport1MouseWheelMoved
-//        try {
-////      final double factor = Math.pow(2, -evt.getPreciseWheelRotation() / 10);
-////      final Point2D mouse = viewport1.getTransform().inverseTransform(evt.getPoint(), null);
-////      viewport1.getTransform().translate(mouse.getX(), mouse.getY());
-////      viewport1.getTransform().scale(factor, factor);
-////      viewport1.getTransform().translate(-mouse.getX(), -mouse.getY());
-////      viewport1.repaint();
-//      
-//    } catch (NoninvertibleTransformException ex) {
-//      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//    }
-    }//GEN-LAST:event_viewport1MouseWheelMoved
-
-//// TILL HERE
     
     /**
      * @param args the command line arguments
@@ -622,12 +711,12 @@ public class App extends javax.swing.JFrame {
                 App app = new App();
                 app.setVisible(true);
                 app.viewport1.repaint();
+                
                 Timer t = new Timer(1, app.viewport1);
                 
                 t.setInitialDelay(5);
                 t.setRepeats(true);
                 t.start();
-                
                 
             }
         });
@@ -642,22 +731,21 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
+    private ch.usi.inf.sa2.components.jBackgroundPanel jBackgroundPanel1;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JSlider jSlider2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem2;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem3;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem4;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
